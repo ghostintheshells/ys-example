@@ -1,0 +1,35 @@
+{
+  "name": "yoga-examples",
+  "version": "0.1.0",
+  "description": "Yoga examples",
+  "main": "app/main.js",
+  "scripts": {
+    "test": "mocha node_modules/yogastudio/*/test_*.js node_modules/tlbcore/*/test_*.js build.src/test_*.js",
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "devlatest": "electron . --dev scope_latest",
+    "build": "node node_modules/yogastudio/lang/yogac.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tlbtlbtlb/yogastudio.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/tlbtlbtlb/yogastudio/issues"
+  },
+  "homepage": "https://github.com/tlbtlbtlb/yogastudio#readme",
+  "dependencies": {
+    "yogastudio": "^0.1.0",
+    "tlbcore": "^1.0.0"
+  },
+  "yogaSrc": [
+    "acrobot_agent.yoga"
+  ],
+  "keywords": [
+    "Yoga",
+    "Studio",
+    "Language",
+    "Robotics"
+  ]
+}

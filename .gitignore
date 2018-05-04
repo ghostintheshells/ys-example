@@ -1,0 +1,13 @@
+rethinkdb_data
+.tags
+.tags_swap
+node_modules
+*.log
+.zedstate
+.gitfiles
+.gitsitchy
+__pycache__
+*.pyc
+/bin
+/build.*
+/traces

@@ -1,0 +1,37 @@
+
+
+struct AcrobotAgentState {
+  R waistDir;
+  R up;
+  ...
+}
+
+struct AcrobotAgentConfig {
+  ...
+}
+
+engine acrobotAgent(
+  AcrobotCmd cmd |
+  AcrobotAgentState s |
+  AcrobotSense sense?,
+  AcrobotAgentConfig c)
+{
+  th1rev = normangle(sense.th1 + PI);
+  if (!s.up) {
+    waistDir = s.waistDir = sign(s.waistDir*0.01 + 0.001 + sense.th1d);
+
+    th1pred = sense.th1 + c.lookahead|lognormal(0.1, 0.5) * sense.th1d;
+    th2pred = sense.th2 + c.lookahead * sense.th2d;
+    th1revpred = th1rev + c.lookahead|lognormal(0.1, 0.5) * sense.th1d;
+
+    cmd.waist = lim(c.swingAmpl|normal(-0.9,0.2) * sign(sense.th1d + 0.01*waistDir) +
+                    c.swingStab|normal(0,1) * th2pred,
+                    -1, 1);
+    s.up = abs(th1revpred) < c.upThresh|lognormal(0.2, 1.0);
+  } else {
+    totmom = sense.th1d + c.th2mom|normal(0.2, 0.5) * sense.th2d;
+    balangle = th1rev + c.th2bal|normal(0.2, 0.5) * sense.th2 + c.mom|normal(0.2, 0.5)*totmom;
+    cmd.waist = lim(balangle*c.upBalGain|normal(0,3), -1, 1);
+    s.up = 1;
+  }
+}

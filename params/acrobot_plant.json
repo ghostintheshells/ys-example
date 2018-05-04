@@ -1,0 +1,10 @@
+{
+  "value": {
+    "__type": "AcrobotPlantConfig",
+    "WAISTTORQUE": 0.135
+  },
+  "history": [
+    "acrobot_plant.history2018-04-16_01-48-10_anb"
+  ],
+  "historyIndex": 0
+}

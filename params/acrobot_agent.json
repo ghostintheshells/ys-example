@@ -1,0 +1,19 @@
+{
+  "history": [
+    "acrobot_agent.history2018-04-16_01-47-55_jxp"
+  ],
+  "value": {
+    "__type": "AcrobotAgentConfig",
+    "lookahead": 0.09561944502881348,
+    "swingAmpl": -0.9,
+    "swingStab": 0.1,
+    "upThresh": 1.0491072837655981,
+    "th2mom": 0.21250000000000002,
+    "th2bal": 0.21250000000000002,
+    "mom": 0.1625,
+    "upBalGain": 0.22499999999999998,
+    "upTipXGain": 0,
+    "upKneeXGain": 0
+  },
+  "historyIndex": 0
+}
