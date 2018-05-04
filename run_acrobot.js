@@ -1,10 +1,13 @@
+/*
+
+*/
 'use strict';
 console._stdout = process.stderr;  // so we can use ParentPipe
 const _ = require('lodash');
 const async = require('async');
 const logio = require('tlbcore/common/logio');
-const yb = require('yogastudio/binary');
 const ys = require('yogastudio');
+const yb = require('yogastudio/binary'); // The program compiled in the current directory
 
 function main()
 {

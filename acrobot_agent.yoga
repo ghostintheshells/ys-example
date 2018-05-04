@@ -1,4 +1,8 @@
 
+/*
+  A controller for the Acrobot. It can control the torque at the waist joint in order to get the robot to swing
+  up and balance as an inverted pendulum
+*/
 
 struct AcrobotAgentState {
   R waistDir;
