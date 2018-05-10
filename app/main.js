@@ -1,3 +1,3 @@
 'use strict';
-const electronmain = require('yogastudio/api/electronmain');
+const electronmain = require('yogastudio/app/electronmain');
 electronmain.setup();
