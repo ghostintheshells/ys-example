@@ -1,0 +1,19 @@
+{
+  "history": [
+    "segwellRiderConfig.history2018-05-10_21-02-31_wey",
+    "segwellRiderConfig.history2018-05-11_09-27-06_zfp",
+    "segwellRiderConfig.history2018-05-11_12-34-21_add",
+    "segwellRiderConfig.history2018-05-11_12-34-52_grv",
+    "segwellRiderConfig.history2018-05-11_13-38-54_efh",
+    "segwellRiderConfig.history2018-05-11_13-39-33_wjy",
+    "segwellRiderConfig.history2018-05-11_14-14-22_een",
+    "segwellRiderConfig.history2018-05-11_14-14-33_mbr",
+    "segwellRiderConfig.history2018-05-11_14-25-55_ens"
+  ],
+  "value": {
+    "__type": "SegwellRiderConfig",
+    "riderGoalSpeed": 2.45,
+    "riderArmBase": 0,
+    "riderArmKp": 0.25
+  }
+}

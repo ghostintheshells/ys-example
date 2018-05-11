@@ -1,0 +1,23 @@
+{
+  "history": [
+    "segwellBalanceConfig.history2018-05-10_21-02-31_eyw",
+    "segwellBalanceConfig.history2018-05-11_09-27-06_duh",
+    "segwellBalanceConfig.history2018-05-11_12-34-21_qxf",
+    "segwellBalanceConfig.history2018-05-11_12-34-52_acm",
+    "segwellBalanceConfig.history2018-05-11_13-38-54_jac",
+    "segwellBalanceConfig.history2018-05-11_13-39-33_jue",
+    "segwellBalanceConfig.history2018-05-11_14-14-22_csp",
+    "segwellBalanceConfig.history2018-05-11_14-14-33_avb",
+    "segwellBalanceConfig.history2018-05-11_14-25-55_thn",
+    "segwellBalanceConfig.history2018-05-11_14-29-11_ejy"
+  ],
+  "value": {
+    "__type": "SegwellBalanceConfig",
+    "speedLim": 4.5,
+    "kp": 660,
+    "kd": 142.5,
+    "tiltbackKi": 0,
+    "overspeedKp": 0,
+    "tiltbackLimP": 0
+  }
+}

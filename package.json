@@ -24,8 +24,10 @@
     "tlbcore": "^1.0.0"
   },
   "yogaSrc": [
-    "acrobot_agent.yoga"
-  ],
+    "acrobot/acrobot_plant.yoga",
+    "acrobot/acrobot_agent.yoga",
+    "segwell/segwell.yoga"
+],
   "keywords": [
     "Yoga",
     "Studio",

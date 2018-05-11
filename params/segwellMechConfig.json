@@ -1,0 +1,33 @@
+{
+  "history": [
+    "segwellMechConfig.history2018-05-10_21-02-31_bfb",
+    "segwellMechConfig.history2018-05-11_09-27-06_zhw",
+    "segwellMechConfig.history2018-05-11_12-34-21_gqx",
+    "segwellMechConfig.history2018-05-11_12-34-52_cct",
+    "segwellMechConfig.history2018-05-11_13-38-54_str",
+    "segwellMechConfig.history2018-05-11_13-39-33_pep",
+    "segwellMechConfig.history2018-05-11_14-14-22_ayg",
+    "segwellMechConfig.history2018-05-11_14-14-33_sgb",
+    "segwellMechConfig.history2018-05-11_14-25-55_xar"
+  ],
+  "value": {
+    "__type": "SegwellMechConfig",
+    "riderHeight": 1.8,
+    "handleLen": 1.2,
+    "riderSpringRate": 1200,
+    "armLen": 1.2,
+    "gravity": 9.8,
+    "windSpeedX": 0,
+    "wheelRad": 0.254,
+    "maxMotorTorque": 300,
+    "maxMotorPower": 4000,
+    "maxMotorRegen": 6000,
+    "busSpeedLim": 7,
+    "busTorqueConstant": 100,
+    "riderDamping": 150,
+    "riderMass": 100,
+    "riderEffArea": 1,
+    "baseMass": 30,
+    "baseMoi": 2
+  }
+}

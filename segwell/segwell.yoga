@@ -1,0 +1,144 @@
+
+
+struct SegwellMechState {
+  R basePosX, basePosY, baseVelX, baseVelY;
+  R handlePosX, handlePosY, handleVelX, handleVelY;
+  R motorSpeed, motorPower;
+  R tiltAngle, tiltAngleVel;
+  R riderPosX, riderPosY, riderVelX, riderVelY;
+  R groundPosY, groundSlope;
+  ...
+}
+
+struct SegwellBalanceOut {
+  R motorTorque;
+}
+
+struct SegwellMechConfig {
+  R riderHeight;
+  R handleLen;
+  R riderSpringRate;
+  R armLen;
+  R gravity;
+  R windSpeedX;
+  R wheelRad;
+  R maxMotorTorque, maxMotorPower, maxMotorRegen;
+  R busSpeedLim, busTorqueConstant;
+  ...
+}
+
+
+
+struct SegwellBalanceState {
+  R tiltbackIntegral;
+}
+
+struct SegwellBalanceConfig {
+  R speedLim;
+  R kp, kd;
+}
+
+
+
+
+struct SegwellRiderConfig {
+  R riderGoalSpeed;
+  R riderArmBase;
+  R riderArmKp;
+}
+
+struct SegwellRiderOut {
+  R armExt;
+  ...
+}
+
+engine {advanceDt: 0.001} segwellMech(| SegwellMechState s | SegwellBalanceOut balanceOut, SegwellRiderOut riderOut, SegwellMechConfig c)
+{
+
+  groundPosY = s.groundPosY = 0; // FIXME c.terrainAmpl * terrain(s.basePosX);
+  groundSlope = s.groundSlope = 0; // FIXME
+
+  basePosY = s.basePosY = c.wheelRad|normal(0.254,0.5) + groundPosY;
+  riderPosY = s.riderPosY = s.basePosY + (c.riderHeight|normal(1.8,0.5)^2 - (s.riderPosX - s.basePosX)^2)^0.5;
+
+  handlePosX = s.handlePosX = s.basePosX + sin(s.tiltAngle+0.18) * c.handleLen|normal(1.2,0.5);
+  handlePosY = s.handlePosY = s.basePosY + cos(s.tiltAngle+0.18) * c.handleLen;
+
+  handleVelX = s.baseVelX + s.tiltAngleVel * cos(s.tiltAngle + 0.18) * c.handleLen;
+  handleVelY = s.baseVelY + s.tiltAngleVel * sin(s.tiltAngle + 0.18) * c.handleLen;
+
+  armExtX = handlePosX - s.riderPosX;
+  armExtY = handlePosY - riderPosY;
+  armExt = (armExtX^2 + armExtY^2)^0.5;
+  armExtVelX = handleVelX - s.riderVelX;
+
+  riderHandForceX = (
+    (armExtX - riderOut.targetArmExt) * c.riderSpringRate|normal(1000,1000) +
+    armExtVelX * c.riderDamping|normal(200,200) +
+    max(c.riderSpringRate * 10 * (armExt - 0.98*c.armLen|normal(1.2,0.5)), 0)
+  );
+
+  riderFeetForceX = (s.riderPosX - s.basePosX) / (riderPosY) * c.riderMass|normal(100,50) * c.gravity|normal(9.8,2);
+
+  airSpeed = s.riderVelX - c.windSpeedX;
+  riderDragForceX = -sign(airSpeed) * airSpeed^2 * c.riderEffArea|normal(1.0,0.5) * 1.3; // 1.3 kg/m^3 air density
+
+
+  riderForceX = riderHandForceX + riderFeetForceX + riderDragForceX;
+
+  baseForceX = (
+    - riderHandForceX +
+    - riderFeetForceX +
+    + balanceOut.motorTorque / c.wheelRad +
+    - groundSlope * c.gravity * (c.baseMass|normal(30,10) + c.riderMass));
+
+  baseTorque = - balanceOut.motorTorque - (riderHandForceX / (riderPosY - basePosY));
+
+  s.motorTorque = balanceOut.motorTorque;
+  s.motorPower = balanceOut.motorTorque * s.baseVelX / c.wheelRad;
+  s.motorSpeed = s.baseVelX / c.wheelRad;
+
+  s.tiltAngleVel = s.tiltAngleVel + baseTorque / c.baseMoi|normal(2.0,0.5) * dt;
+  s.tiltAngle = lim(s.tiltAngle + s.tiltAngleVel * dt, -1, 1);
+
+  s.riderPosX = s.riderPosX + s.riderVelX * dt;
+  s.riderVelX = s.riderVelX + (riderForceX / c.riderMass) * dt;
+
+  s.basePosX = s.basePosX + s.baseVelX * dt;
+  s.baseVelX = s.baseVelX + baseForceX / c.baseMass * dt;
+
+  s.baseVelY = groundSlope * s.baseVelX;
+
+  s.mtHi = min(c.maxMotorTorque|normal(300,100),
+    c.maxMotorPower|normal(4000,2000) / max(0.1, s.baseVelX) * c.wheelRad,
+    -c.maxMotorRegen|normal(6000,2000) / min(-0.1, s.baseVelX) * c.wheelRad,
+    -(c.busSpeedLim|normal(7.0,3) - s.baseVelX) * c.busTorqueConstant|normal(100,50));
+
+  s.mtLo = max(-c.maxMotorTorque,
+    c.maxMotorPower / min(-0.1, s.baseVelX) * c.wheelRad,
+    c.maxMotorRegen / max(0.1, s.baseVelX) * c.wheelRad,
+    -(c.busSpeedLim + s.baseVelX) * c.busTorqueConstant);
+
+}
+
+engine segwellBalance(SegwellBalanceOut o | SegwellBalanceState s | SegwellMechState mech, SegwellMechConfig mechConfig, SegwellBalanceConfig c)
+{
+  overSpeed = lim(mech.baseVelX - c.speedLim|normal(4.5,3), -1, 1);
+
+  s.tiltbackIntegral = lim(s.tiltbackIntegral + lim(mech.baseVelX - c.speedLim, -3, 0.3) * c.tiltbackKi|normal(0.2,0.1) * dt, 0, 1);
+  tiltbackAngle = s.tiltbackIntegral + lim(overSpeed * c.overspeedKp|normal(0.2,0.1), 0.0, c.tiltbackLimP|normal(0.5,0.2));
+
+  o.motorTorque = lim(
+    c.kp|normal(600,300) * (mech.tiltAngle + tiltbackAngle) +
+    c.kd|normal(100,50) * mech.tiltAngleVel,
+    mech.mtLo, mech.mtHi);
+
+}
+
+engine segwellRider(SegwellRiderOut o | | SegwellMechState mech, SegwellMechConfig mechConfig, SegwellRiderConfig c)
+{
+  o.targetArmExt = c.riderArmBase|normal(0.20,0.1) + lim((mech.riderVelX +
+    mech.motorTorque / mechConfig.wheelRad * 0.0005 -
+    c.riderGoalSpeed|normal(2,1)) * c.riderArmKp|normal(0.33,0.1),
+    -0.3, +0.45);
+}

@@ -1,0 +1,120 @@
+
+
+struct AcrobotCmd {
+  R waist;
+}
+
+struct AcrobotSense {
+  R th1;
+  R th1d;
+  R waistPwr;
+  R tipPosX;
+  R tipPosY;
+  R kneePosX;
+  R kneePosY;
+}
+
+struct AcrobotPlantState {
+  R th1;
+  R th2;
+  R th1d;
+  R th2d;
+  R th1dd;
+  R th2dd;
+
+  R waistTorque;
+
+  R waistPwr;
+  R waistPwrInt;
+
+  R pe1;
+  R ke1;
+  R pe2;
+  R ke2;
+  R te;
+
+  R d1;
+  R d2;
+
+  R phi2;
+  R phi1;
+  R kneePosX;
+  R kneePosY;
+  R tipPosX;
+  R tipPosY;
+  R tipPosBestY;
+}
+
+struct AcrobotPlantConfig {
+  R WAISTTORQUE;
+  ...
+}
+
+engine {advanceDt: 0.01} acrobotPlant(
+  AcrobotSense sense |
+  AcrobotPlantState s |
+  AcrobotCmd cmd?,
+  AcrobotPlantConfig c)
+{
+
+  th1 = s.th1 = normangle(s.th1 + s.th1d * dt);
+  th1d = s.th1d = s.th1d + s.th1dd * dt;
+  th2 = s.th2 = normangle(s.th2 + s.th2d * dt);
+  th2d = s.th2d = s.th2d + s.th2dd * dt;
+
+  M1 = 0.5; // kg
+  M2 = 0.5; // kg
+  MOI1 = 0.5*0.3*0.3; // kg*m*m
+  MOI2 = 0.5*0.3*0.3; // kg*m*m
+  L1 = 0.3; // m
+  L2 = 0.3; // m
+  LC1 = 0.3;
+  LC2 = 0.3;
+  GRAVITY = 9.8; // M/s/s
+
+  kneePosX = s.kneePosX = L1 * -sin(th1);
+  kneePosY = s.kneePosY = L1 * -cos(th1);
+
+  tipPosX = s.tipPosX = kneePosX + L2 * -sin(th1 + th2);
+  tipPosY = s.tipPosY = kneePosY + L2 * -cos(th1 + th2);
+
+  waistTorque = s.waistTorque = lim(cmd.waist, -1, 1) * c.WAISTTORQUE|normal(0.045*3, 1); // Nm/c     where c is the control input in [-1 .. 1];
+
+  pe1 = s.pe1 = -cos(th1) * LC1 * M1 * GRAVITY;
+  ke1 = s.ke1 = 0.5 * th1d^2 * MOI1;
+
+  pe2 = s.pe2 = (-cos(th1) * L1 - cos(th1 + th2) * LC2) * M1 * GRAVITY;
+  ke2 = s.ke2 = (0.5 * (th1d + th2d)^2 * MOI2 +
+                 0.5 * (th1d * (L1 + cos(th1d) * LC2) * M2)^2);
+
+  te = s.te = pe1 + ke1 + pe2 + ke2;
+
+  waistPwr = sense.waistPwr = waistTorque * th2d;
+
+  d1 = s.d1 = M1 * LC1^2 + M2 * (L1^2 + LC2^2 + 2 * L1 * LC2 * cos(th2)) + MOI1 + MOI2;
+
+  d2 = s.d2 = M2 * (LC2^2 + L1 * LC2 * cos(th2)) + MOI2;
+
+  phi2 = s.phi2 = M2 * LC2 * GRAVITY * cos(th1 + th2 - PI/2);
+
+  phi1 = s.phi1 = (-M2 * L1 * LC2 * th2d^2 * sin(th2)
+                   -2 * M2 * L1 * LC2 * th2d * th1d * sin(th2)
+                   +(M1 * LC1 + M2 * L1) * GRAVITY * cos(th1 - PI/2)
+                   + phi2);
+
+  th2dd = s.th2dd = (1.0 / (M2 * LC2^2 + MOI2 - d2^2 / d1)) * (waistTorque + d2 / d1 * phi1 - M2 * L1 * LC2 * th1d^2 * sin(th2) - phi2);
+  th1dd = s.th1dd = -(1.0 / d1) * (d2 * th2dd + phi1);
+
+  s.waistPwrInt = s.waistPwrInt + waistPwr * dt;
+
+  s.tipPosBestY = max(s.tipPosBestY, tipPosY);
+
+  sense.th1 = th1;
+  sense.th1d = th1d;
+  sense.th2 = th2;
+  sense.th2d = th2d;
+  sense.tipPosX = tipPosX;
+  sense.tipPosY = tipPosY;
+  sense.kneePosX = kneePosX;
+  sense.kneePosY = kneePosY;
+}

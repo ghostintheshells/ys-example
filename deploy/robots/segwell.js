@@ -4,20 +4,20 @@ const robots = require('yogastudio/api/robots');
 const scripts = require('yogastudio/api/scripts');
 
 
-scripts.scriptRegistry.run_acrobot = {
-  path: require.resolve('../../acrobot/run_acrobot.js'),
+scripts.scriptRegistry.run_segwell = {
+  path: require.resolve('../../segwell/run_segwell.js'),
   options: []
 };
 
-robots.robotRegistry.acrobot = {
+robots.robotRegistry.segwell = {
   needsLock: false,
   scripts: [
     {
-      name: 'run_acrobot',
+      name: 'run_segwell',
       options: [
         {
           name: 'duration',
-          default: 20,
+          default: 5,
           type: 'R',
         },
       ]
