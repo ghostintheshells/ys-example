@@ -97,12 +97,12 @@ scope.defScopeTrace('AcrobotPlantState', {
 
     // Draw white background for subsampled drawings
     m.scan(tr, {
-      onBegin: (overlayi, noverlays) => {
+      onBegin: (_overlayi, _noverlays) => {
         ctx.lineWidth = 2.5;
         ctx.strokeStyle = '#ffffff';
         ctx.beginPath();
       },
-      onMajorPt: (time, pt, isMajor) => {
+      onMajorPt: (time, pt, _isMajor) => {
         pathAcrobotSkeleton(ctx, pt, lo.convTimeToX(time), baseY, scaleX, scaleY);
       },
       onEnd: () => {
@@ -119,7 +119,7 @@ scope.defScopeTrace('AcrobotPlantState', {
         ctx.globalAlpha = overlayi === noverlays-1 ? 1 : 0.25;
         ctx.beginPath();
       },
-      onMajorPt: (time, pt, isMajor) => {
+      onMajorPt: (time, pt, _isMajor) => {
         pathAcrobotSkeleton(ctx, pt, lo.convTimeToX(time), baseY, scaleX, scaleY);
       },
       onEnd: () => {
@@ -134,7 +134,7 @@ scope.defScopeTrace('AcrobotPlantState', {
         ctx.globalAlpha = overlayi === noverlays-1 ? 1 : 0.25;
         ctx.beginPath();
       },
-      onMajorPt: (time, pt, isMajor) => {
+      onMajorPt: (time, pt, _isMajor) => {
         drawAcrobot(ctx, pt, lo.convTimeToX(time), baseY, scaleX, scaleY);
       },
       onEnd: () => {
